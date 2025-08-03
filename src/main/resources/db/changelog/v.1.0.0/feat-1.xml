@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-table-orders" author="Rustamscode">
+        <createTable tableName="orders"
+                     remarks="Stores data about orders">
+
+            <column name="id" type="UUID"
+                    remarks="Order ID (UUID)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_orders"/>
+            </column>
+
+            <column name="total_price" type="NUMERIC(10, 2)"
+                    remarks="Total order price">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(50)"
+                    remarks="Order Status">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="customer_id" type="UUID"
+                    remarks="Order owner">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_date" type="TIMESTAMPTZ"
+                    remarks="Date and time">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_modified_date" type="TIMESTAMPTZ"
+                    remarks="Last modified date">
+            </column>
+
+            <column name="is_deleted" type="BOOLEAN"
+                    remarks="Deletion status for soft deletes" defaultValueBoolean="false">
+            </column>
+
+            <column name="version" type="BIGINT"
+                    remarks="Version for optimistic locking (JPA)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="orders" indexName="idx_orders_customer_id">
+            <column name="customer_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create-table-orders_outbox" author="Rustamscode">
+        <createTable tableName="orders_outbox"
+                     remarks="Stores data about orders outbox tasks">
+
+            <column name="id" type="UUID"
+                    remarks="Task ID (UUID)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_orders_outbox"/>
+            </column>
+
+            <column name="aggregate_id" type="UUID"
+                    remarks="Order ID (UUID)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(50)"
+                    remarks="Outbox Status">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="payload" type="JSONB"
+                    remarks="Outbox task payload">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="event_type" type="VARCHAR(128)"
+                    remarks="Event name">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="topic_name" type="VARCHAR(255)"
+                    remarks="Topic name">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_date" type="TIMESTAMPTZ"
+                    remarks="Date and time">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_modified_date" type="TIMESTAMPTZ"
+                    remarks="Last modified date">
+            </column>
+
+            <column name="is_deleted" type="BOOLEAN"
+                    remarks="Deletion status for soft deletes" defaultValueBoolean="false">
+            </column>
+
+            <column name="version" type="BIGINT"
+                    remarks="Version for optimistic locking (JPA)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="orders_outbox" indexName="idx_orders_outbox_aggregate_id">
+            <column name="aggregate_id"/>
+        </createIndex>
+        <createIndex tableName="orders_outbox" indexName="idx_orders_outbox_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create-table-order_items" author="Rustamscode">
+        <createTable tableName="order_items"
+                     remarks="Stores data about order items">
+
+            <column name="id" type="UUID"
+                    remarks="ID (UUID)">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_order_items"/>
+            </column>
+
+            <column name="product_id" type="UUID"
+                    remarks="Product ID (UUID)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="order_id" type="UUID"
+                    remarks="Order ID (UUID)">
+                <constraints nullable="false" foreignKeyName="fk_item_order" referencedTableName="orders"
+                             referencedColumnNames="id"/>
+            </column>
+
+            <column name="quantity" type="NUMERIC(10, 2)"
+                    remarks="Quantity of products">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="price_per_unit" type="NUMERIC(10, 2)"
+                    remarks="Product price per 1 unit">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_date" type="TIMESTAMPTZ"
+                    remarks="Date and time">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_modified_date" type="TIMESTAMPTZ"
+                    remarks="Last modified date">
+            </column>
+
+            <column name="is_deleted" type="BOOLEAN"
+                    remarks="Deletion status for soft deletes" defaultValueBoolean="false">
+            </column>
+
+            <column name="version" type="BIGINT"
+                    remarks="Version for optimistic locking (JPA)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="order_items" indexName="idx_order_items_product_id">
+            <column name="product_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
