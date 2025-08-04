@@ -53,13 +53,13 @@
         </createIndex>
     </changeSet>
 
-    <changeSet id="create-table-orders_outbox" author="Rustamscode">
-        <createTable tableName="orders_outbox"
+    <changeSet id="create-table-outbox" author="Rustamscode">
+        <createTable tableName="outbox"
                      remarks="Stores data about orders outbox tasks">
 
             <column name="id" type="UUID"
                     remarks="Task ID (UUID)">
-                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_orders_outbox"/>
+                <constraints primaryKey="true" nullable="false" primaryKeyName="pk_outbox"/>
             </column>
 
             <column name="aggregate_id" type="UUID"
@@ -106,10 +106,10 @@
             </column>
         </createTable>
 
-        <createIndex tableName="orders_outbox" indexName="idx_orders_outbox_aggregate_id">
+        <createIndex tableName="outbox" indexName="idx_outbox_aggregate_id">
             <column name="aggregate_id"/>
         </createIndex>
-        <createIndex tableName="orders_outbox" indexName="idx_orders_outbox_status">
+        <createIndex tableName="outbox" indexName="idx_outbox_status">
             <column name="status"/>
         </createIndex>
     </changeSet>
