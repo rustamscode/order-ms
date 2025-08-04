@@ -29,8 +29,8 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 
 @Entity
-@Table(name = "order_outbox")
-public class OrderOutbox extends BaseEntity {
+@Table(name = "outbox")
+public class Outbox extends BaseEntity {
 
   @Column(name = "aggregate_id", nullable = false)
   private UUID aggregateId;
