@@ -7,4 +7,6 @@ public class EventConstants {
 
   public static final String ORDER_CREATED = "OrderCreated";
   public static final String ORDER_CANCELLED = "OrderCancelled";
+  public static final String ORDER_COMPLETED = "OrderCompleted";
+
 }
