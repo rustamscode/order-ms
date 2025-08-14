@@ -6,8 +6,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-public record OrderCreatedPayload(UUID id,
+public record OrderCompletedEvent(UUID id,
+                                  UUID aggregateId,
                                   UUID customerId,
                                   BigDecimal totalPrice,
-                                  List<OrderItemDto> items) implements OutboxPayload {
+                                  List<OrderItemDto> items) implements BaseEvent {
 }

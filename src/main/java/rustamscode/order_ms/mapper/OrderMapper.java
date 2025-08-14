@@ -7,7 +7,8 @@ import org.mapstruct.MappingTarget;
 import rustamscode.order_ms.dto.OrderCreateRq;
 import rustamscode.order_ms.entity.enums.OrderStatus;
 import rustamscode.order_ms.entity.order.Order;
-import rustamscode.order_ms.entity.payload.OrderCreatedPayload;
+import rustamscode.order_ms.entity.payload.OrderCompletedEvent;
+import rustamscode.order_ms.entity.payload.OrderCreatedEvent;
 
 import java.math.BigDecimal;
 
@@ -16,10 +17,11 @@ public abstract class OrderMapper {
 
   @Mapping(target = "customerId", source = "customerId")
   @Mapping(target = "items", source = "items")
-  @Mapping(target = "status", defaultValue = "java(OrderStatus.PENDING)")
+  @Mapping(target = "status", expression = "java(OrderStatus.PENDING)")
   public abstract Order mapToOrder(OrderCreateRq request);
 
-  public abstract OrderCreatedPayload mapToOrderCreatedPayload(Order order);
+  public abstract OrderCreatedEvent mapToOrderCreatedPayload(Order order);
+  public abstract OrderCompletedEvent mapToOrderCompletedEvent(Order order);
 
   @AfterMapping
   private void enrichOrder(@MappingTarget Order order, OrderCreateRq request) {

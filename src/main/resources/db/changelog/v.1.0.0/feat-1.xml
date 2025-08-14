@@ -62,11 +62,6 @@
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_outbox"/>
             </column>
 
-            <column name="aggregate_id" type="UUID"
-                    remarks="Order ID (UUID)">
-                <constraints nullable="false"/>
-            </column>
-
             <column name="status" type="VARCHAR(50)"
                     remarks="Outbox Status">
                 <constraints nullable="false"/>
@@ -106,11 +101,9 @@
             </column>
         </createTable>
 
-        <createIndex tableName="outbox" indexName="idx_outbox_aggregate_id">
-            <column name="aggregate_id"/>
-        </createIndex>
-        <createIndex tableName="outbox" indexName="idx_outbox_status">
+        <createIndex tableName="outbox" indexName="idx_outbox_status_created_date">
             <column name="status"/>
+            <column name="created_date"/>
         </createIndex>
     </changeSet>
 
