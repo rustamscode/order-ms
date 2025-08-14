@@ -7,4 +7,6 @@ import java.util.UUID;
 public interface OrderService {
 
   UUID createOrder(OrderCreateRq request);
+
+  boolean finalizeOrderCreation(UUID id);
 }
