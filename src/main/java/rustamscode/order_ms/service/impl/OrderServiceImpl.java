@@ -7,16 +7,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import rustamscode.order_ms.dto.OrderCreateRq;
 import rustamscode.order_ms.dto.OutboxCreateRq;
+import rustamscode.order_ms.entity.BaseEntity;
 import rustamscode.order_ms.entity.enums.OrderStatus;
 import rustamscode.order_ms.entity.order.Order;
 import rustamscode.order_ms.entity.payload.OrderCompletedEvent;
-import rustamscode.order_ms.entity.payload.OrderCreatedEvent;
+import rustamscode.order_ms.entity.payload.OrderFailedEvent;
 import rustamscode.order_ms.mapper.OrderMapper;
 import rustamscode.order_ms.repository.OrderRepository;
 import rustamscode.order_ms.service.OrderService;
 import rustamscode.order_ms.service.OutboxService;
 import rustamscode.order_ms.util.EventConstants;
 
+import java.util.List;
 import java.util.UUID;
 
 @Log4j2
@@ -35,20 +37,28 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   @Transactional
-  public UUID createOrder(OrderCreateRq request) {
-    Order savedOrder = orderRepository.save(orderMapper.mapToOrder(request));
-    UUID orderId = savedOrder.getId();
-    log.info("Order with id {} has been saved", orderId);
+  public void createOrder(List<OrderCreateRq> request) {
+    List<Order> orderList = request.stream()
+        .map(orderMapper::mapToOrder)
+        .toList();
+    List<Order> orders = orderRepository.saveAll(orderList);
+    List<UUID> orderIds = orders.stream().map(BaseEntity::getId).toList();
+    log.info("Orders with ids {} have been saved", orderIds);
 
-    OrderCreatedEvent event = orderMapper.mapToOrderCreatedPayload(savedOrder);
-    OutboxCreateRq outboxRequest = OutboxCreateRq.builder()
-        .payload(event)
-        .eventType(EventConstants.ORDER_CREATED)
-        .topicName(orderEventTopic)
-        .build();
-    outboxService.createOutboxTask(outboxRequest);
+    List<OutboxCreateRq> outboxCreateRequests = orders
+        .stream()
+        .map(orderMapper::mapToOrderCreatedEvent)
+        .map(event -> {
+          return OutboxCreateRq
+              .builder()
+              .payload(event)
+              .eventType(EventConstants.ORDER_CREATED)
+              .topicName(orderEventTopic)
+              .build();
+        })
+        .toList();
 
-    return orderId;
+    outboxService.createOutboxTasks(outboxCreateRequests);
   }
 
   @Override
@@ -65,12 +75,37 @@ public class OrderServiceImpl implements OrderService {
     orderRepository.save(order);
 
     OrderCompletedEvent event = orderMapper.mapToOrderCompletedEvent(order);
-    outboxService.createOutboxTask(
-        OutboxCreateRq.builder()
+    outboxService.createOutboxTasks(
+        List.of(OutboxCreateRq.builder()
             .payload(event)
             .eventType(EventConstants.ORDER_COMPLETED)
             .topicName(orderEventTopic)
-            .build()
+            .build())
+    );
+
+    return true;
+  }
+
+  @Override
+  @Transactional
+  public boolean markOrderAsFailed(UUID id) {
+    Order order = orderRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException(String.format("Order with id %s doesn't exist", id)));
+
+    if (order.getStatus() == OrderStatus.FAILED) {
+      return true;
+    }
+
+    order.setStatus(OrderStatus.FAILED);
+    orderRepository.save(order);
+
+    OrderFailedEvent event = orderMapper.mapToOrderFailedEvent(order);
+    outboxService.createOutboxTasks(
+        List.of(OutboxCreateRq.builder()
+            .payload(event)
+            .eventType(EventConstants.ORDER_FAILED)
+            .topicName(orderEventTopic)
+            .build())
     );
 
     return true;

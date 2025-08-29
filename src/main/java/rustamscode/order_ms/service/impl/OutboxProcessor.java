@@ -13,8 +13,6 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import static jakarta.transaction.Transactional.TxType.REQUIRES_NEW;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,14 +22,14 @@ public class OutboxProcessor {
 
   private final BaseKafkaProducer kafkaProducer;
 
-  @Transactional(REQUIRES_NEW)
+  @Transactional
   public void process(Outbox task) {
     if (Objects.isNull(task)) {
       throw new IllegalArgumentException("Event for processing can not be null");
     }
 
     try {
-      kafkaProducer.produceSync(task.getTopicName(), task.getAggregateId().toString(), task.getPayload());
+      kafkaProducer.produceSync(task.getTopicName(), task.getPayload().getAggregateId().toString(), task.getPayload());
       outboxService.updateStatusTo(OutboxStatus.SENT, task);
       log.info("Outbox task has successfully been sent to kafka");
     } catch (ExecutionException | InterruptedException | TimeoutException e) {

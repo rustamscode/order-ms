@@ -5,13 +5,12 @@ import rustamscode.order_ms.entity.enums.OutboxStatus;
 import rustamscode.order_ms.entity.order.Outbox;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface OutboxService {
 
-  UUID createOutboxTask(OutboxCreateRq request);
+  void createOutboxTasks(List<OutboxCreateRq> requests);
 
-  List<Outbox> getAllByStatus(OutboxStatus status, int limit);
+  List<Outbox> claimTasksForProcessing(int limit);
 
   boolean updateStatusTo(OutboxStatus status, Outbox outboxTask);
 }

@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "10m")
 public class SchedulerConfig {
-
+  //
   @Value("${outbox.scheduler.lock.environment}")
   private String environment;
 

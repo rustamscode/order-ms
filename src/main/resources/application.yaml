@@ -58,6 +58,7 @@ spring:
         spring.json.trusted.packages: "*"
 outbox:
   scheduler:
+    enabled: true
     lock:
       environment: prod
       keyPrefix: order-ms
@@ -65,3 +66,4 @@ outbox:
 
 kafka:
   order-event-topic: order-event-topic
+  payment-event-topic: payment-events-topic

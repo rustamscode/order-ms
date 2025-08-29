@@ -20,6 +20,6 @@ public interface OutboxRepository extends JpaRepository<Outbox, UUID> {
       LIMIT :limit
       FOR UPDATE SKIP LOCKED
       """, nativeQuery = true)
-  List<Outbox> findAllAndLockByStatus(@Param("status") OutboxStatus status,
-                                        @Param("limit") int limit);
+  List<Outbox> findAllAndLockByStatus(@Param("status") String status,
+                                      @Param("limit") Integer limit);
 }

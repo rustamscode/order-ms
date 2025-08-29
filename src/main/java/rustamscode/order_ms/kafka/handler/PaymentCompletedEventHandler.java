@@ -15,11 +15,11 @@ public class PaymentCompletedEventHandler implements EventHandler<PaymentComplet
 
   @Override
   public void handle(PaymentCompletedEvent event) {
-    if (event == null || event.aggregateId() == null) {
+    if (event == null || event.getAggregateId() == null) {
       throw new IllegalArgumentException("Invalid PaymentCompletedEvent");
     }
 
-    orderService.finalizeOrderCreation(event.aggregateId());
+    orderService.finalizeOrderCreation(event.getAggregateId());
   }
 
   @Override

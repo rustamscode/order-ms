@@ -17,9 +17,6 @@ import org.hibernate.type.SqlTypes;
 import rustamscode.order_ms.entity.BaseEntity;
 import rustamscode.order_ms.entity.enums.OutboxStatus;
 import rustamscode.order_ms.entity.payload.BaseEvent;
-import rustamscode.order_ms.entity.payload.OutboxPayload;
-
-import java.util.UUID;
 
 @Getter
 @Setter
