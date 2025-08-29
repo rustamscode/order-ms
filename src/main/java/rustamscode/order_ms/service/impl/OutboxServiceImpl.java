@@ -5,12 +5,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import rustamscode.order_ms.dto.OutboxCreateRq;
+import rustamscode.order_ms.entity.BaseEntity;
 import rustamscode.order_ms.entity.enums.OutboxStatus;
 import rustamscode.order_ms.entity.order.Outbox;
 import rustamscode.order_ms.mapper.OutboxMapper;
 import rustamscode.order_ms.repository.OutboxRepository;
 import rustamscode.order_ms.service.OutboxService;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,23 +27,34 @@ public class OutboxServiceImpl implements OutboxService {
 
   @Override
   @Transactional
-  public UUID createOutboxTask(OutboxCreateRq request) {
-    Outbox outbox = outboxMapper.mapToOutbox(request);
-    UUID outboxId = outboxRepository.save(outbox).getId();
+  public void createOutboxTasks(List<OutboxCreateRq> requests) {
+    List<Outbox> outboxList = requests
+        .stream()
+        .map(outboxMapper::mapToOutbox)
+        .toList();
 
-    log.info("Outbox event with id {} has been saved", outboxId);
-
-    return outboxId;
+    List<UUID> savedOutboxList = outboxRepository.saveAll(outboxList)
+        .stream()
+        .map(BaseEntity::getId)
+        .toList();
+    log.info("Outbox events with ids {} have been saved", savedOutboxList);
   }
 
   @Override
   @Transactional
-  public List<Outbox> getAllByStatus(OutboxStatus status, int limit) {
-    if (status == null) {
-      throw new IllegalArgumentException("Please provide correct status for outbox tasks");
+  public List<Outbox> claimTasksForProcessing(int limit) {
+    if (limit == 0) {
+      throw new IllegalArgumentException("Limit has to be greater than 0");
     }
 
-    return outboxRepository.findAllAndLockByStatus(status, limit);
+    List<Outbox> outboxTasks = outboxRepository.findAllAndLockByStatus(OutboxStatus.NEW.name(), limit);
+    if (outboxTasks.isEmpty()) {
+      log.info("Нет задач для обработки.");
+      return Collections.emptyList();
+    }
+
+    outboxTasks.forEach(task -> task.setStatus(OutboxStatus.PROCESSING));
+    return outboxRepository.saveAll(outboxTasks);
   }
 
   @Override
@@ -54,4 +67,6 @@ public class OutboxServiceImpl implements OutboxService {
 
     return true;
   }
+
+
 }

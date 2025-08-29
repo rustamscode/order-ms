@@ -19,9 +19,9 @@ public class BaseKafkaEventListener {
   private final EventDispatcher eventDispatcher;
 
   @KafkaListener(
-      topics = "payment-events",
+      topics = {"payment-events-topic", "warehouse-events-topic"},
       groupId = "${spring.kafka.consumer.group-id}",
-      containerFactory = "kafkaListenerContainerFactory"
+      containerFactory = "filteringConcurrentKafkaListenerContainerFactory"
   )
   public void handlePaymentEvent(@Payload BaseEvent payload,
                                  @Header(KafkaHeaders.RECEIVED_KEY) String key,

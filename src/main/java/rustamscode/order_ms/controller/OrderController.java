@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import rustamscode.order_ms.dto.OrderCreateRq;
 
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Order management API")
@@ -18,5 +19,5 @@ public interface OrderController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(summary = "Create a order")
-  ResponseEntity<UUID> createOrder(@RequestBody @Valid OrderCreateRq request);
+  ResponseEntity<Void> createOrder(@RequestBody @Valid List<OrderCreateRq> request);
 }
